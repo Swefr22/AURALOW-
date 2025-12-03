@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 
 void main() {
-  runApp(AuralowApp());
+  runApp(const MyApp());
 }
 
-class AuralowApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Auralow",
+      title: 'Auralow',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-      ),
-      home: HomeScreen(),
+      theme: ThemeData.dark(),
+      home: const HomeScreen(),
     );
   }
 }
