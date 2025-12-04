@@ -1,23 +1,41 @@
-﻿import 'package:shared_preferences/shared_preferences.dart';
+﻿// lib/utils/storage.dart
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage {
-  static Future<bool?> getBool(String key) async {
-    final sp = await SharedPreferences.getInstance();
-    return sp.containsKey(key) ? sp.getBool(key) : null;
+  static late SharedPreferences _prefs;
+
+  // Initialize SharedPreferences instance
+  static Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
   }
 
-  static Future<void> setBool(String key, bool value) async {
-    final sp = await SharedPreferences.getInstance();
-    await sp.setBool(key, value);
+  // --- Fixed Getter Methods ---
+
+  // FIX: Handles null return from SharedPreferences and ensures boolean conversion is safe.
+  static bool? getBool(String key) {
+    return _prefs.getBool(key);
   }
 
-  static Future<int?> getInt(String key) async {
-    final sp = await SharedPreferences.getInstance();
-    return sp.containsKey(key) ? sp.getInt(key) : null;
+  static int? getInt(String key) {
+    return _prefs.getInt(key);
   }
 
-  static Future<void> setInt(String key, int value) async {
-    final sp = await SharedPreferences.getInstance();
-    await sp.setInt(key, value);
+  static String? getString(String key) {
+    return _prefs.getString(key);
+  }
+
+  // --- Setter Methods ---
+
+  static Future<bool> setBool(String key, bool value) {
+    return _prefs.setBool(key, value);
+  }
+
+  static Future<bool> setInt(String key, int value) {
+    return _prefs.setInt(key, value);
+  }
+
+  static Future<bool> setString(String key, String value) {
+    return _prefs.setString(key, value);
   }
 }
