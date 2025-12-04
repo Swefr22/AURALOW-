@@ -1,19 +1,15 @@
 // lib/screens/home_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart'; // Ensure this is imported for core widgets
-import '../widgets/background.dart'; // Assuming this file exists
+import 'package:flutter/widgets.dart';
+import '../widgets/background.dart'; 
 import 'gameplay_screen.dart';
 import 'levels_screen.dart'; 
 import '../utils/storage.dart';
-import '../models/level_theme.dart'; // Assuming this file exports LevelTheme class
-import 'dart:math'; // Imported for the 'Start' button's logic (sqrt, pow)
+import '../models/level_theme.dart'; 
+import 'dart:math'; 
 
-// NOTE: The 'allThemes' list must be defined here if it's not imported.
-// If you have a separate file (e.g., '../models/level_theme.dart') that defines this list,
-// you can REMOVE this definition and ensure you are importing it correctly.
-// Since it was present in your previous snippet, we define it here for completeness.
-
+// Keeping your Theme definitions
 final List<LevelTheme> allThemes = [
   LevelTheme(
     id: 1, 
@@ -42,11 +38,9 @@ final List<LevelTheme> allThemes = [
   ),
 ];
 
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-  // Helper method for the "How to play" dialog
   void _showInstructions(BuildContext ctx) {
     showDialog(
       context: ctx,
@@ -61,7 +55,10 @@ class HomeScreen extends StatelessWidget {
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
-          TextButton(onPressed: ()=>Navigator.pop(ctx), child: const Text('Got it', style: TextStyle(color: Colors.cyanAccent))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Got it', style: TextStyle(color: Colors.cyanAccent)),
+          ),
         ],
       ),
     );
@@ -69,7 +66,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Assuming CalmBackground is a wrapper widget that provides the background gradient/visuals.
     return CalmBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -78,15 +74,43 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('AURALOW',
-                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white, shadows: [
+
+                /// ---------------------------
+                ///      INSERTED: APP LOGO
+                /// ---------------------------
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/logo.png'),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                /// ---------------------------
+                ///      APP TITLE
+                /// ---------------------------
+                Text(
+                  'AURALOW',
+                  style: TextStyle(
+                    fontSize: 36, 
+                    fontWeight: FontWeight.bold, 
+                    color: Colors.white, 
+                    shadows: [
                       Shadow(blurRadius: 18, color: Colors.cyanAccent.withOpacity(0.6), offset: const Offset(0, 4))
-                    ])),
+                    ]
+                  ),
+                ),
                 const SizedBox(height: 8),
                 const Text('Breathe • Relax • Play', style: TextStyle(color: Colors.white70)),
                 const SizedBox(height: 28),
 
-                // --- START BUTTON (Jumps to Game using Saved Settings) ---
+                /// ---------------------------
+                ///      START BUTTON
+                /// ---------------------------
                 ElevatedButton(
                   onPressed: () async {
                     // Get the currently selected level and theme ID from storage.
@@ -96,15 +120,15 @@ class HomeScreen extends StatelessWidget {
                     // Find the full LevelTheme object based on the selected ID.
                     final LevelTheme themeToUse = allThemes.firstWhere(
                       (theme) => theme.id == selectedThemeId,
-                      orElse: () => allThemes.first, // Fallback to Level 1 theme if ID is missing
+                      orElse: () => allThemes.first, 
                     );
 
-                    // Check if instructions have been seen (using the fixed getBool)
                     final seen = Storage.getBool('seenInstructions') ?? false;
 
-                    // Navigation logic remains the same (show tips first if not seen)
                     if (seen == false) {
-                      showDialog(context: context, builder: (_) => WillPopScope(
+                      showDialog(
+                        context: context, 
+                        builder: (_) => WillPopScope(
                         onWillPop: () async => false,
                         child: AlertDialog(
                           backgroundColor: Colors.black87,
@@ -115,7 +139,6 @@ class HomeScreen extends StatelessWidget {
                             TextButton(onPressed: () {
                               Storage.setBool('seenInstructions', true);
                               Navigator.pop(context);
-                              // Pass the full LevelTheme object
                               Navigator.push(context, MaterialPageRoute(builder: (_) => GameplayScreen(levelId: currentLevelId, theme: themeToUse)));
                             },
                                 child: const Text('Start', style: TextStyle(color: Colors.cyanAccent)))
@@ -123,7 +146,6 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ));
                     } else {
-                      // Pass the full LevelTheme object
                       Navigator.push(context, MaterialPageRoute(builder: (_) => GameplayScreen(levelId: currentLevelId, theme: themeToUse)));
                     }
                   },
@@ -136,16 +158,14 @@ class HomeScreen extends StatelessWidget {
 
                 const SizedBox(height: 12),
                 
-                // --- LEVELS & THEMES BUTTON (Navigates to Selection Screen) ---
+                /// ---------------------------
+                ///    LEVELS & THEMES BUTTON
+                /// ---------------------------
                 ElevatedButton(
                   onPressed: () async {
-                    // FIX: This now correctly navigates to the fully-implemented LevelsScreen.
-                    // It waits for the result (which is a map containing level/theme data).
                     final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => const LevelsScreen()));
 
-                    // If the user selected a level in LevelsScreen and came back with data
                     if (result != null && result is Map && result['theme'] is LevelTheme && result['levelId'] is int) {
-                      // Navigate directly to the game with the selected level/theme
                       Navigator.push(context, MaterialPageRoute(builder: (_) => GameplayScreen(levelId: result['levelId'], theme: result['theme'])));
                     }
                   },
@@ -158,8 +178,13 @@ class HomeScreen extends StatelessWidget {
 
                 const SizedBox(height: 18),
                 
-                // --- HOW TO PLAY BUTTON ---
-                TextButton(onPressed: ()=>_showInstructions(context), child: const Text('How to play', style: TextStyle(color: Colors.white70))),
+                /// ---------------------------
+                ///      HOW TO PLAY BUTTON
+                /// ---------------------------
+                TextButton(
+                  onPressed: () => _showInstructions(context), 
+                  child: const Text('How to play', style: TextStyle(color: Colors.white70))
+                ),
               ],
             ),
           ),
